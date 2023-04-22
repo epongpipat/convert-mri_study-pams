@@ -1,0 +1,494 @@
+---
+title: "QC"
+format: 
+  html:
+    toc: true
+    toc-depth: 4
+    number-sections: true
+    code-fold: false
+    code-line-numbers: true
+    toc-location: left
+execute:
+  warning: false
+  echo: false
+---
+
+```{r}
+pkgs <- c('rHelperKennedyRodrigue', 'glue', 'dplyr', 'stringr', 'gt', 
+          'report', 'purrr')
+xfun::pkg_attach2(pkgs, message = F)
+options(warn=1)
+```
+
+```{r}
+vars_str_fslhd_all <- c('sub', 'ses', 'data_type', 'vox_units', 'time_units', 
+                    'slice_name', 'intent', 'intent_name', 'qform_name', 'qform_xorient', 
+                    'qform_yorient', 'qform_zorient', 'sform_name', 'sform_xorient', 'sform_yorient', 
+                    'sform_zorient', 'file_type', 'descrip', 'aux_file', 'acq')
+
+vars_str_bids_all <- c('sub', 'ses', 'Modality', 'Manufacturer', 'ManufacturersModelName', 'InstitutionName', 
+                   'InstitutionalDepartmentName', 'InstitutionAddress', 'StationName', 'BodyPartExamined', 'PatientPosition', 
+                   'ProcedureStepDescription', 'SoftwareVersions', 'MRAcquisitionType', 'SeriesDescription', 'ProtocolName', 
+                   'ScanningSequence', 'SequenceVariant', 'ScanOptions', 'SequenceName', 'ImageType', 
+                   'ImageType_2', 'ImageType_3', 'ImageType_4', 'ImageType_5', 'AcquisitionTime', 
+                   'ReceiveCoilName', 'ReceiveCoilActiveElements', 'PulseSequenceDetails', 'ConsistencyInfo', 'InPlanePhaseEncodingDirectionDICOM', 
+                   'ConversionSoftware', 'ConversionSoftwareVersion', 'PhaseEncodingDirection', 'DiffusionScheme', 'ImageComments',
+                   'acq', 'PhaseEncodingDirection', 'ScanOptions')
+
+vars_str_all <- c(vars_str_fslhd_all, vars_str_bids_all)
+
+vars_ignore <- c('qto', 'sto', 'ImageOrientation', 'acq', 'descrip', 
+                 'SeriesNumber', 'DeviceSerialNumber', 'InstitutionName', 'InstitutionalDepartmentName', 'InstitutionAddress', 
+                 'AcquisitionTime', 'StationName', 'time')
+```
+
+```{r}
+outlier_lo <- function(x) {
+  x <- x[!is.na(x)]
+  return(quantile(x, 0.25) - 1.5 * IQR(x))
+}
+
+outlier_hi <- function(x) {
+  x <- x[!is.na(x)]
+  return(quantile(x, 0.75) + 1.5 * IQR(x))
+}
+
+na_mean <- function(x) {
+  x <- x[!is.na(x)]
+  return(mean(x))
+}
+
+na_median <- function(x) {
+  x <- x[!is.na(x)]
+  return(median(x))
+}
+
+na_sd <- function(x) {
+  x <- x[!is.na(x)]
+  return(sd(x))
+}
+```
+
+```{r}
+conditional_color_num_outliers <- function(gt, data, vars, color_low = "#9ecae1", color_high = "#fc9272") {
+  for (i in 1:length(vars)) {
+    cat(i, vars[i], '\n')
+    # q1 <- data[, vars[i]] %>% quantile(.25)
+    # q3 <- data[, vars[i]] %>% quantile(.75)
+    # iqr <- data[, vars[i]] %>% IQR()
+    outlier_lo <- outlier_lo(data[, vars[i]])
+    outlier_hi <- outlier_hi(data[, vars[i]])
+    gt <- gt %>%
+      tab_style(
+        style = list(
+          cell_fill(color = color_low)
+        ),
+        locations = cells_body(
+          columns = vars[i],
+          rows = eval(parse(text = glue("{vars[i]} < outlier_lo")))
+        )
+      ) %>%
+      tab_style(
+        style = list(
+          cell_fill(color = color_high)
+        ),
+        locations = cells_body(
+          columns = vars[i],
+          rows = eval(parse(text = glue("{vars[i]} > outlier_hi")))
+        )
+      )
+  }
+  # gt <- gt %>%
+  #   tab_footnote('Outliers are outside the range of [Q1-1.5*IQR, Q3+1.5*IQR]', locations = cells_column_labels(columns = vars))
+  return(gt)
+}
+```
+
+```{r}
+conditional_color_str <- function(gt, data, vars, colors = c(rev(RColorBrewer::brewer.pal(9, 'Reds')), '#ffffff')) {
+  for (i in 1:length(vars)) {
+    cat(i, vars[i], '\n')
+    temp_n <- as.factor(data[, vars[i]]) %>% summary()
+    temp_total <- length(data[, vars[i]])
+    temp_prop <- temp_n/temp_total
+    temp_var <- names(which(temp_n == max(temp_n)))
+    
+    temp_list <- list()
+    deciles <- seq(0, 0.9, 0.1)
+    for (j in 1:length(deciles)) {
+      idx <- which((temp_prop >= deciles[j] & temp_prop < deciles[j] + .1) & !(names(temp_prop) %in% temp_var))
+      temp_list[[j]] <- names(idx)
+    }
+    
+    
+    for (j in 1:length(temp_list)) {
+      if (is_empty(temp_list[[j]])) {
+        next()
+      }
+      for (k in 1:length(temp_list[[j]])) {
+        gt <- gt %>%
+          tab_style(
+            style = list(
+              cell_fill(color = colors[j])
+            ),
+            locations = cells_body(
+              columns = vars[i],
+              rows = eval(parse(text = glue("{vars[i]} == '{temp_list[[j]][k]}'")))
+            )
+          )
+      }
+      
+      
+    }
+  }
+  
+  # gt <- gt %>%
+  #   tab_footnote('Values are colored such that lower proportion/frequency of values are darker', locations = cells_column_labels(columns = vars))
+  return(gt)
+}
+```
+
+```{r}
+
+get_info_from_path <- function(path, key) {
+  value <- path %>%
+    basename() %>%
+    str_split('_') %>%
+    unlist() %>%
+    str_subset(key) %>%
+    str_remove(glue("{key}-")) %>%
+    str_remove('\\.csv')
+  if (is_empty(value)) {
+    return(NA)
+  }
+  return(value)
+}
+
+# lapply(in_paths, function(x) { get_info_from_path(x, 'acq') })
+# in_paths[3]
+```
+
+```{r}
+get_vars_diff <- function(path) {
+  # in_path_temp <- df_temp <- df %>% filter(type == 'anat', suffix == 'T1w') %>% .[, 'path']
+  # in_path_temp <- in_path_temp[[1]]
+  # path <- df$path[1]
+  df_temp <- read.csv(path)
+  
+  vars_str <- colnames(df_temp) %>% str_subset(paste0(vars_str_all, collapse = '|'))
+  vars_num <- colnames(df_temp) %>% str_subset(paste0(vars_str, collapse = '|'), negate = TRUE)
+  
+  df_temp[, vars_num] <- apply(df_temp[, vars_num], 2, as.numeric)
+  
+  vars_diff <- apply(df_temp, 2, function(x) {
+    x <- x[!is.na(x)]
+    length(unique(x)) > 1
+  }) %>% which() %>% names() %>%
+    str_subset('sub', negate = TRUE) %>%
+    str_subset(paste0(vars_ignore, collapse = '|'), negate = TRUE)
+  
+  vars_str_diff <- vars_diff %>% str_subset(paste0(vars_str, collapse = '|')) 
+  
+  vars_num_diff <- vars_diff %>% str_subset(paste0(vars_num, collapse = '|')) %>%
+    str_subset(paste0(vars_ignore, collapse = '|'), negate = TRUE)
+  
+  if (length(vars_str_diff) == 0) {
+    vars_str_diff <- NULL
+  }
+  
+   if (length(vars_num_diff) == 0) {
+    vars_num_diff <- NULL
+  }
+  
+  return(list('str' = vars_str_diff,
+              'num' = vars_num_diff))
+}
+```
+
+
+
+```{r}
+get_gt <- function(path) {
+  # path <- df$path[1]
+  diff_str_temp <- get_vars_diff(path)$str
+  diff_num_temp <- get_vars_diff(path)$num
+  diff_temp <- c(diff_str_temp, diff_num_temp)
+  df_temp <- read.csv(path)
+  gt <- gt(df_temp[, c('sub', 'ses', 'InstitutionName', diff_temp)])
+  if (length(diff_str_temp) > 0) {
+    gt <- conditional_color_str(gt, df_temp, diff_str_temp) %>%
+      tab_footnote(footnote = 'Values are colored such that lower proportion/frequency of values are darker', locations = cells_column_labels(columns = diff_str_temp))
+  }
+  if (length(diff_num_temp) > 0) {
+    gt <- conditional_color_num_outliers(gt, df_temp, diff_num_temp) %>%
+    tab_footnote(footnote = 'Outliers are outside the range of [Q1-1.5*IQR, Q3+1.5*IQR]', locations = cells_column_labels(columns = diff_num_temp)) %>%
+  grand_summary_rows(
+    columns = diff_num_temp,
+    fns = list(
+      mean = "na_mean",
+      median =  "na_median",
+      sd =  "na_sd",
+      outlier_lo = 'outlier_lo',
+      outlier_hi = 'outlier_hi'
+      )
+  )
+  }
+  
+  return(gt)
+}
+```
+
+```{r}
+root_dir <- get_root_dir('kenrod')
+# in_paths <- list()
+in_paths <- Sys.glob(glue("{root_dir}/study-pams/sourcedata/qc/data/*.csv"))
+
+df <- data.frame(path = in_paths) %>%
+  rowwise() %>%
+  mutate(type = get_info_from_path(path, 'type'),
+         suffix = get_info_from_path(path, 'suffix'),
+         acq = get_info_from_path(path, 'acq'),
+         part = get_info_from_path(path, 'part'),
+         echo = get_info_from_path(path, 'echo'),
+         dir = get_info_from_path(path, 'dir')) %>%
+  ungroup()
+```
+
+
+# anat
+
+## T1w
+
+```{r}
+path_temp <- df %>% filter(type == 'anat', suffix == 'T1w') %>% select('path') %>% .[[1]]
+get_gt(path_temp) 
+```
+
+## T2w (Whole Brain)
+
+```{r}
+path_temp <- df %>% filter(type == 'anat', suffix == 'T2w', acq == 'wb') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+## T2w (FLAIR)
+
+```{r}
+path_temp <- df %>% filter(type == 'anat', suffix == 'FLAIR') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+## T2w (HCSF)
+
+```{r}
+path_temp <- df %>% filter(type == 'anat', suffix == 'T2w', acq == 'hcsf') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+## TB1map (B1Map TURBOFLASH)
+
+### Standard 
+
+#### Anatomical Image
+
+```{r}
+path_temp <- df %>% filter(type == 'anat', suffix == 'TB1map', is.na(acq), part == 'anat') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+#### Flip Angle Map
+
+```{r}
+path_temp <- df %>% filter(type == 'anat', suffix == 'TB1map', is.na(acq), part == 'fam') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+### Up 2mm
+
+#### Anatomical Image
+
+```{r}
+path_temp <- df %>% filter(type == 'anat', suffix == 'TB1map', acq == 'up-2mm', part == 'anat') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+#### Flip Angle Map
+
+```{r}
+path_temp <- df %>% filter(type == 'anat', suffix == 'TB1map', acq == 'up-2mm', part == 'fam') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+# fMRI (Circles Task)
+
+```{r}
+path_temp <- df %>% filter(type == 'func', suffix == 'bold') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+### fmap (dir-ap)
+
+```{r}
+path_temp <- df %>% filter(type == 'fmap', suffix == 'epi', acq == 'circles', dir == 'ap') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+### fmap (dir-pa)
+
+```{r}
+path_temp <- df %>% filter(type == 'fmap', suffix == 'epi', acq == 'circles', dir == 'pa') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+# dwi (NODDI)
+
+```{r}
+path_temp <- df %>% filter(type == 'dwi', suffix == 'dwi') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+# perf (Multi-Label ASL)
+
+```{r}
+path_temp <- df %>% filter(type == 'perf', suffix == 'asl') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+### fmap (dir-ap)
+
+```{r}
+path_temp <- df %>% filter(type == 'fmap', suffix == 'epi', acq == 'perf-asl', dir == 'ap') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+### fmap (dir-ap)
+
+```{r}
+path_temp <- df %>% filter(type == 'fmap', suffix == 'epi', acq == 'perf-asl', dir == 'pa') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+
+# SWI
+
+## Magnitude
+
+### mag-1
+
+```{r}
+path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'mag', echo == '1') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+### mag-2
+
+```{r}
+path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'mag', echo == '2') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+### mag-3
+
+```{r}
+path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'mag', echo == '3') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+### mag-4
+
+```{r}
+path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'mag', echo == '4') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+### mag-5
+
+```{r}
+path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'mag', echo == '5') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+### mag-6
+
+```{r}
+path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'mag', echo == '6') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+
+
+### mag-7
+
+```{r}
+path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'mag', echo == '7') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+
+### mag-8
+
+```{r}
+path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'mag', echo == '8') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+## Phase
+
+### phase-1
+
+```{r}
+path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'phase', echo == '1') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+### phase-2
+
+```{r}
+path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'phase', echo == '2') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+### phase-3
+
+```{r}
+path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'phase', echo == '3') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+### phase-4
+
+```{r}
+path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'phase', echo == '4') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+### phase-5
+
+```{r}
+path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'phase', echo == '5') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+### phase-6
+
+```{r}
+path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'phase', echo == '6') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+
+
+### phase-7
+
+```{r}
+path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'phase', echo == '7') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
+
+
+### phase-8
+
+```{r}
+path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'phase', echo == '8') %>% select('path') %>% .[[1]]
+get_gt(path_temp)
+```
