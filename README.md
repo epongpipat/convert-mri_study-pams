@@ -5,12 +5,11 @@
 
 ## scripts 
 
-1. bash dcm_unzip.sh
-2. bash dcm2niix_wrapper.sh
-3. bash qc_bids_to_csv.sh
-4. bash qc_fslhd_to_csv.sh
-5. Rscript qc_combine.R
-6. bash qc_render.sh
+1. `bash dcm_unzip.sh`
+2. `bash dcm2niix_wrapper.sh`
+3. `bash qc_uber.sh`
+4. `Rscript qc_combine.R`
+5. `bash qc_render.sh`
 
 ## dependencies
 - bash:
