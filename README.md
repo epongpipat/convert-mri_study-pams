@@ -1,18 +1,29 @@
 # convert-mri_study-pams
 
-- convert to dcm2niix
-- create a qc qmd file (form dcm2niix's bids json file and fslhd)
+collection of scripts to:
+- unzip and convert dcm to nii format (using dcm2niix)
+- create a qc html file (from dcm2niix's bids json file and fslhd using qmd)
 
-## scripts 
-
-1. `bash dcm_unzip.sh`
-2. `bash dcm2niix_wrapper.sh`
-3. `bash qc_uber.sh`
-4. `Rscript qc_combine.R`
-5. `bash qc_render.sh`
-
-## dependencies
+## 1. dependencies
 - bash:
     - epongpipat/bashHelperKennedyRodrigue
 - R:
     - epongpipat/rHelperKennedyRodrigue
+
+## 2. usage
+
+```
+module load convert-mri_study-pams
+```
+
+### 2.A. convert
+`dcm_unzip.sh`
+
+`dcm2niix_wrapper.sh`
+
+### 2.B. qc
+`qc_uber.sh`
+
+`Rscript qc_combine_all_sub.R`
+
+`qc_render.sh # needs to be run locally for now`
