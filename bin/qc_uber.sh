@@ -34,7 +34,7 @@ code_dir=`dirname $0`
 # ------------------------------------------------------------------------------
 # main
 # ------------------------------------------------------------------------------
-cmd="python ${code_dir}/qc_bids_to_csv_wrapper-bash.sh ${opts}"
+cmd="bash ${code_dir}/qc_bids_to_csv_wrapper-bash.sh ${opts}"
 echo -e "\ncommand:\n${cmd}\n"
 eval ${cmd}
 
