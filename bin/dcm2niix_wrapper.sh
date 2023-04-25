@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 # load modules
 # ------------------------------------------------------------------------------
-module load bashHelperKennedyRodrigue/0.0.1
+module load bashHelperKennedyRodrigue
 source bashHelperKennedyRodrigueFunctions.sh
 dcm2niix_ver="1.0.20210317"
 module load dcm2niix/${dcm2niix_ver}

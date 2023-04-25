@@ -4,7 +4,7 @@
 # modules
 # ------------------------------------------------------------------------------
 module load python/3.8.6
-module load bashHelperKennedyRodrigue/0.0.1
+module load bashHelperKennedyRodrigue
 source bashHelperKennedyRodrigueFunctions.sh
 
 # ------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ check_in_paths ${in_dir}
 # main
 # ------------------------------------------------------------------------------
 
-cmd="python3 ${code_dir}/json_to_csv.py \
+cmd="python3 ${code_dir}/qc_bids_to_csv.py \
 -i ${in_dir} \
 -o ${out_dir} \
 --overwrite ${overwrite}"

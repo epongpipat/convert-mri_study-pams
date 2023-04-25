@@ -24,6 +24,6 @@ module load convert-mri_study-pams
 ### 2.B. qc
 `qc_uber.sh`
 
-`Rscript qc_combine_all_sub.R`
+`qc_combine_all_sub.sh`
 
 `qc_render.sh # needs to be run locally for now`

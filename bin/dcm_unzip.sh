@@ -4,7 +4,7 @@
 # ------------------------------------------------------------------------------
 # modules
 # ------------------------------------------------------------------------------
-module load bashHelperKennedyRodrigue/0.0.1
+module load bashHelperKennedyRodrigue
 source bashHelperKennedyRodrigueFunctions.sh
 
 # ------------------------------------------------------------------------------

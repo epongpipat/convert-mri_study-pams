@@ -11,7 +11,7 @@
 # ------------------------------------------------------------------------------
 # modules
 # ------------------------------------------------------------------------------
-module load bashHelperKennedyRodrigue/0.0.1
+module load bashHelperKennedyRodrigue
 source bashHelperKennedyRodrigueFunctions.sh
 module load python/3.8.6
 
@@ -34,11 +34,14 @@ code_dir=`dirname $0`
 # ------------------------------------------------------------------------------
 # main
 # ------------------------------------------------------------------------------
+# remove leading zeros
+opts=`echo ${opts} | sed "s/--ses ${ses}/--ses ${wave}/"`
+
 cmd="bash ${code_dir}/qc_bids_to_csv_wrapper-bash.sh ${opts}"
 echo -e "\ncommand:\n${cmd}\n"
 eval ${cmd}
 
-cmd="bash ${code_dir}/fslhd_to_csv.sh ${opts}"
+cmd="bash ${code_dir}/qc_fslhd_to_csv.sh ${opts}"
 echo -e "\ncommand:\n${cmd}\n"
 eval ${cmd}
 
