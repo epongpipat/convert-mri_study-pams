@@ -15,6 +15,7 @@ req_arg_list=(sub ses date)
 check_req_args ${req_arg_list[@]}
 dcm2niix_ver="1.0.20210317"
 print_header
+set -e
 
 # ------------------------------------------------------------------------------
 # paths
