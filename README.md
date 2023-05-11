@@ -26,4 +26,6 @@ module load convert-mri_study-pams
 
 `qc_combine_all_sub.sh`
 
-`qc_render.sh # needs to be run locally for now`
+`qc_render.sh # needs to be run locally for now` (or locally render the qc_report.qmd)
+
+`qc_copy_report.sh`
