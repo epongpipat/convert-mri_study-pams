@@ -21,12 +21,18 @@ ver="1.0.20210317"
 # paths
 # ------------------------------------------------------------------------------
 root_dir=`get_root_dir kenrod`
-in_dir="${root_dir}/study-${study}/sourcedata/nii_software-dcm2niix_v-${ver}/KENROD_${study_uc}_${date}_${sub}_${wave}/"
+in_dir="${root_dir}/study-${study}/sourcedata/nii_software-dcm2niix_v-${ver}/KENROD_${study_uc}_${date}_${sub}_${wave}"
 out_dir="${root_dir}/study-${study}/sourcedata/nii_software-dcm2niix_v-${ver}/KENROD_${study_uc}_${date}_${sub}_${wave}/scanner_reconstruction"
 
 # ------------------------------------------------------------------------------
 # main
 # ------------------------------------------------------------------------------
+if [[ ! -d ${out_dir} ]]; then
+    cmd="mkdir ${out_dir}"
+    echo ${cmd}
+    eval ${cmd}
+fi
+
 for file in ${in_dir}/*.json; do
     # asl
     if grep -q "DERIVED" "$file"; then
