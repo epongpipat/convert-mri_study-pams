@@ -1,0 +1,59 @@
+#!/bin/bash
+
+# ------------------------------------------------------------------------------
+# modules
+# ------------------------------------------------------------------------------
+module load bashHelperKennedyRodrigue
+source bashHelperKennedyRodrigueFunctions.sh
+
+# ------------------------------------------------------------------------------
+# args/hdr
+# ------------------------------------------------------------------------------
+parse_args "${@}"
+req_args=(study date sub ses)
+check_req_args ${req_args[@]}
+print_header
+set -e
+
+ver="1.0.20210317"
+
+# ------------------------------------------------------------------------------
+# paths
+# ------------------------------------------------------------------------------
+root_dir=`get_root_dir kenrod`
+in_dir="${root_dir}/study-${study}/sourcedata/nii_software-dcm2niix_v-${ver}/KENROD_${study_uc}_${date}_${sub}_${wave}/"
+out_dir="${root_dir}/study-${study}/sourcedata/nii_software-dcm2niix_v-${ver}/KENROD_${study_uc}_${date}_${sub}_${wave}/scanner_reconstruction"
+
+# ------------------------------------------------------------------------------
+# main
+# ------------------------------------------------------------------------------
+for file in ${in_dir}/*.json; do
+    # asl
+    if grep -q "DERIVED" "$file"; then
+    warning_msg "moving file to scanner reconstruction (DERIVED, ${file})"
+    for ext in .json .nii.gz; do
+        cmd="mv ${file%.json}${ext} ${out_dir}"
+        echo ${cmd}
+        eval ${cmd}
+    done
+    fi
+
+    #swi
+    if grep -q '"SeriesDescription": "mIP_Images(SW)"' "$file"; then
+    warning_msg "moving file to scanner reconstruction (mIP_Images(SW), ${file})"
+    for ext in .json .nii.gz; do
+        cmd="mv ${file%.json}${ext} ${out_dir}"
+        echo ${cmd}
+        eval ${cmd}
+    done
+    fi
+
+    if grep -q '"SeriesDescription": "SWI_Images"' "$file"; then
+    warning_msg "moving file to scanner reconstruction (SWI_Images, ${file})"
+    for ext in .json .nii.gz; do
+        cmd="mv ${file%.json}${ext} ${out_dir}"
+        echo ${cmd}
+        eval ${cmd}
+    done
+    fi
+done
