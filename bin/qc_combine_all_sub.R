@@ -40,6 +40,7 @@ vars_str_bids_all <- c('sub', 'ses', 'Modality', 'Manufacturer', 'ManufacturersM
                    'ConversionSoftware', 'ConversionSoftwareVersion', 'PhaseEncodingDirection', 'DiffusionScheme', 'ImageComments',
                    'acq', 'PhaseEncodingDirection', 'ScanOptions')
 
+vars_str_descriptive_stats <- c('sub', 'ses', 'file')
 
 # ------------------------------------------------------------------------------
 # functions
@@ -68,6 +69,7 @@ for (acq in acq_list) {
   in_paths <- list()
   in_paths[['fslhd']] <- Sys.glob(glue("{root_dir}/study-pams/sourcedata/qc/KENROD_PAMS_????????_*_?/fslhd_csv/*{acq}.csv"))
   in_paths[['bids']] <- Sys.glob(glue("{root_dir}/study-pams/sourcedata/qc/KENROD_PAMS_????????_*_?/bids_json_to_csv/*{acq}.csv"))
+  in_paths[['desc_stats']] <- Sys.glob(glue("{root_dir}/study-pams/sourcedata/qc/KENROD_PAMS_????????_*_?/descriptive_stats/*{acq}.csv"))
   out_dir <- glue("{root_dir}/study-pams/sourcedata/qc/data")
   
   out_file <- case_when(
@@ -192,13 +194,34 @@ for (acq in acq_list) {
   # }) > 0))
   # 
   # df_bids[, idx]
+
+  # ------------------------------------------------------------------------------
+  # descriptive stats
+  # ------------------------------------------------------------------------------
+  data_desc_stats <- lapply(in_paths[['desc_stats']], read.csv)
+  df_desc_stats <- abind(data_desc_stats, along = 1) %>%
+    as.data.frame()
+    # %>%
+    #mutate(acq = lapply(in_paths[['desc_stats']], function(x) { get_value_from_path(x, 'acq') }) %>% unlist())
   
+  vars_num_desc_stats <- colnames(df_desc_stats) %>%
+    str_subset(paste0(vars_str_descriptive_stats, collapse = '|'), negate = TRUE)
+  
+  df_desc_stats[, vars_num_desc_stats] <- apply(df_desc_stats[, vars_num_desc_stats], 2, as.numeric)
+  head(df_desc_stats)
+
   # ------------------------------------------------------------------------------
   # combine and save
   # ------------------------------------------------------------------------------
   
-  df <- full_join(df_fslhd, df_bids, by = c('sub', 'ses', 'acq'))
+  df <- full_join(df_fslhd, df_bids, by = c('sub', 'ses', 'acq')) %>%
+    full_join(., df_desc_stats, by = c('sub', 'ses'))
   head(df)
+
+  df <- df %>%
+    filter(!str_detect(ImageType, 'DERIVED')) %>%
+    filter(!str_detect(SeriesDescription, 'mIP|SWI'))
+
   if (str_detect(acq, 'B1Map')) {
     df_anat <- df %>%
       filter(ImageComments == 'anatomical image') 

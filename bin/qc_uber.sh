@@ -30,6 +30,9 @@ set -e
 # ------------------------------------------------------------------------------
 root_dir=`get_root_dir kenrod`
 code_dir=`dirname $0`
+if [[ ${code_dir} =~ '/var/spool/slurm' ]]; then
+    code_dir=${slurm_code_dir}
+fi
 
 # ------------------------------------------------------------------------------
 # main
@@ -44,6 +47,11 @@ eval ${cmd}
 cmd="bash ${code_dir}/qc_fslhd_to_csv.sh ${opts}"
 echo -e "\ncommand:\n${cmd}\n"
 eval ${cmd}
+
+cmd="bash ${code_dir}/qc_desc_stats.sh ${opts}"
+echo -e "\ncommand:\n${cmd}\n"
+eval ${cmd}
+
 
 # ------------------------------------------------------------------------------
 # end
