@@ -10,8 +10,7 @@ parser.add_argument(
     "--overwrite",
     help="flag to overwrite files",
     required=False,
-    default=False,
-    type=bool,
+    default=0
 )
 args = parser.parse_args()
 
