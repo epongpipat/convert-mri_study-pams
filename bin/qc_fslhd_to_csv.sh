@@ -63,8 +63,7 @@ cmd="Rscript ${in_paths[code_dir]}/qc_fslhd_combine_within_sub.R \
 -i ${out_paths[csv_dir]} \
 -o ${out_paths[csv_combined]} \
 --overwrite ${overwrite}"
-echo -e "\ncommand:\n${cmd}"
-eval ${cmd}
+eval_cmd -c "${cmd}" -o "${out_paths[csv_combined]}" --overwrite ${overwrite}
 
 ensure_permissions ${out_paths[tsv_dir]}
 ensure_permissions ${out_paths[csv_dir]}
