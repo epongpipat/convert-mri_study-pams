@@ -8,6 +8,7 @@ format:
     code-fold: false
     code-line-numbers: true
     toc-location: left
+    embed-resources: true
 execute:
   warning: false
   echo: false
@@ -174,7 +175,9 @@ get_vars_diff <- function(path) {
   # in_path_temp <- in_path_temp[[1]]
   # path <- df$path[1]
   df_temp <- read.csv(path)
-  
+  df_temp <- df_temp %>% # filter out reconstructed/derived images
+    filter(!str_detect(ImageType, 'DERIVED')) %>%
+    filter(!str_detect(SeriesDescription, 'mIP|SWI'))
   vars_str <- colnames(df_temp) %>% str_subset(paste0(vars_str_all, collapse = '|'))
   vars_num <- colnames(df_temp) %>% str_subset(paste0(vars_str, collapse = '|'), negate = TRUE)
   
@@ -214,6 +217,9 @@ get_gt <- function(path) {
   diff_num_temp <- get_vars_diff(path)$num
   diff_temp <- c(diff_str_temp, diff_num_temp)
   df_temp <- read.csv(path)
+  df_temp <- df_temp %>% # filter out reconstructed/derived images
+    filter(!str_detect(ImageType, 'DERIVED')) %>%
+    filter(!str_detect(SeriesDescription, 'mIP|SWI'))
   gt <- gt(df_temp[, c('sub', 'ses', 'InstitutionName', diff_temp)])
   if (length(diff_str_temp) > 0) {
     gt <- conditional_color_str(gt, df_temp, diff_str_temp) %>%
@@ -240,9 +246,10 @@ get_gt <- function(path) {
 
 ```{r}
 root_dir <- get_root_dir('kenrod')
-# in_paths <- list()
 in_paths <- Sys.glob(glue("{root_dir}/study-pams/sourcedata/qc/data/*.csv"))
-
+if (length(in_paths) == 0) {
+  stop('there are no files')
+}
 df <- data.frame(path = in_paths) %>%
   rowwise() %>%
   mutate(type = get_info_from_path(path, 'type'),
@@ -376,7 +383,10 @@ get_gt(path_temp)
 ### mag-1
 
 ```{r}
-path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'mag', echo == '1') %>% select('path') %>% .[[1]]
+path_temp <- df %>% 
+  filter(type == 'swi', suffix == 'gre', part == 'mag', echo == '1') %>%
+  select('path') %>% 
+  .[[1]]
 get_gt(path_temp)
 ```
 
