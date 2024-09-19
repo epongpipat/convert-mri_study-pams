@@ -59,8 +59,8 @@ fi
 cmd="dcm2niix \
 -b y \
 -ba y \
--f ${out_file} \ 
--i y \
+-f ${out_file} \
+-i n \
 -o ${out_dir} \
 -z y \
 ${in_dir}"
