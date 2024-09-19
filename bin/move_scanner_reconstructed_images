@@ -63,3 +63,5 @@ for file in ${in_dir}/*.json; do
     done
     fi
 done
+
+ensure_permissions ${out_dir}
