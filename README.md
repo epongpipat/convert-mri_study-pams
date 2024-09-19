@@ -13,13 +13,13 @@ collection of scripts to:
 ## 2. usage
 
 ```
-module load convert-mri_study-pams
+module load study-pams_convert-mri
 ```
 
 ### 2.A. convert
-`dcm_unzip.sh`
+`unzip_dcm`
 
-`dcm2niix_wrapper.sh`
+`convert_dcm_to_nii`
 
 ### 2.B. qc
 `qc_uber.sh`
