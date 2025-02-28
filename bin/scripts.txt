@@ -1,0 +1,6 @@
+unzip_dcm
+convert_dcm_to_nii
+move_scanner_reconstructed_images
+qc_uber.sh
+qc_combine_all_sub.sh
+qc_copy_report.sh
