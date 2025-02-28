@@ -5,6 +5,8 @@
 # ------------------------------------------------------------------------------
 module load bashHelperKennedyRodrigue
 source bashHelperKennedyRodrigueFunctions.sh
+# module load R/3.6.0
+module load containers/r/4.2.1
 
 # ------------------------------------------------------------------------------
 # hdr
@@ -16,7 +18,7 @@ set -e
 # main
 # ------------------------------------------------------------------------------
 code_dir=`dirname $0`
-Rscript ${code_dir}/qc_combine_all_sub.R
+r-exec Rscript ${code_dir}/qc_combine_all_sub.R
 
 # ------------------------------------------------------------------------------
 # end

@@ -5,7 +5,9 @@
 # ------------------------------------------------------------------------------
 module load bashHelperKennedyRodrigue
 source bashHelperKennedyRodrigueFunctions.sh
-module load fsl/6.0.4
+module load fsl
+# module load R/3.6.0
+module load containers/r/4.2.1
 
 # ------------------------------------------------------------------------------
 # args/hdr
@@ -55,11 +57,11 @@ for in_path in ${out_paths[tsv_dir]}/*.tsv; do
     fi
     out_file=`basename ${in_path} | sed s/.tsv/.csv/g`
     out_csv="${out_paths[csv_dir]}/${out_file}"
-    cmd="Rscript ${in_paths[code_dir]}/qc_fslhd_to_csv.R -i ${in_path} -o ${out_csv} --overwrite ${overwrite}"
+    cmd="r-exec Rscript ${in_paths[code_dir]}/qc_fslhd_to_csv.R -i ${in_path} -o ${out_csv} --overwrite ${overwrite}"
     eval_cmd -c "${cmd}" -o "${out_csv}" --overwrite ${overwrite}
 done
 
-cmd="Rscript ${in_paths[code_dir]}/qc_fslhd_combine_within_sub.R \
+cmd="r-exec Rscript ${in_paths[code_dir]}/qc_fslhd_combine_within_sub.R \
 -i ${out_paths[csv_dir]} \
 -o ${out_paths[csv_combined]} \
 --overwrite ${overwrite}"
