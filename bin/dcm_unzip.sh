@@ -36,7 +36,8 @@ in_paths[zip]="${root_dir}/incoming/${scanner_center}/${lab_uc}-${lab_uc}.${stud
 
 declare -A out_paths
 out_paths[dcm_dir]="${root_dir}/study-${study}/sourcedata/dcm"
-out_paths[sub_dcm_dir_temp]="${root_dir}/study-${study}/sourcedata/dcm/${lab_uc_abbr}_${study_uc}_${sub}_${wave}-${data_ref_1}"
+out_paths[sub_dcm_dir_temp1]="${root_dir}/study-${study}/sourcedata/dcm/${lab_uc}_${study_uc}_${sub}_${wave}-${data_ref_1}"
+out_paths[sub_dcm_dir_temp2]="${root_dir}/study-${study}/sourcedata/dcm/${lab_uc_abbr}_${study_uc}_${sub}_${wave}-${data_ref_1}"
 out_paths[sub_dcm_dir]="${root_dir}/study-${study}/sourcedata/dcm/${lab_uc}_${study_uc}_${date}_${sub}_${wave}"
 
 # ------------------------------------------------------------------------------
@@ -53,11 +54,10 @@ else
     cmd="unzip \
     ${in_paths[zip]} \
     -d ${out_paths[dcm_dir]}"
-    eval_cmd -c "${cmd}" -o ${out_paths[sub_dcm_dir_temp]} --overwrite ${overwrite} --print ${print}
+    eval_cmd -c "${cmd}" -o ${out_paths[sub_dcm_dir_temp2]} --overwrite ${overwrite} --print ${print}
 fi
 
-cmd="mv ${out_paths[sub_dcm_dir_temp]} \
-${out_paths[sub_dcm_dir]}"
+cmd="mv ${out_paths[sub_dcm_dir_temp2]} ${out_paths[sub_dcm_dir]}"
 eval_cmd -c "${cmd}" -o ${out_paths[sub_dcm_dir]} --overwrite ${overwrite} --print ${print}
 
 # ------------------------------------------------------------------------------
