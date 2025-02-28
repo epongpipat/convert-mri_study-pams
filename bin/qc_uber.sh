@@ -39,7 +39,7 @@ fi
 # remove leading zeros
 opts=`echo ${opts} | sed "s/--ses ${ses}/--ses ${wave}/"`
 
-cmd="bash ${code_dir}/qc_bids_to_csv_wrapper-bash.sh ${opts}"
+cmd="bash ${code_dir}/qc_bids_to_csv.sh ${opts}"
 echo -e "\ncommand:\n${cmd}\n"
 eval ${cmd}
 

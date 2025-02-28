@@ -3,9 +3,10 @@
 # ------------------------------------------------------------------------------
 # modules
 # ------------------------------------------------------------------------------
-module load python/3.8.6
+# module load python/3.8.6
 module load bashHelperKennedyRodrigue
 source bashHelperKennedyRodrigueFunctions.sh
+module load miniconda
 
 # ------------------------------------------------------------------------------
 # args/hdr
