@@ -18,7 +18,7 @@ set -e
 # main
 # ------------------------------------------------------------------------------
 code_dir=`dirname $0`
-r-exec Rscript ${code_dir}/qc_combine_all_sub.R
+r-exec Rscript --vanilla ${code_dir}/qc_combine_all_sub.R
 
 # ------------------------------------------------------------------------------
 # end
