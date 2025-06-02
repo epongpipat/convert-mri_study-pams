@@ -20,10 +20,10 @@ set -e
 # paths
 # ------------------------------------------------------------------------------
 root_dir=`get_root_dir kenrod`
-in_dir="${root_dir}/study-${study}/sourcedata/nii_software-dcm2niix_v-1.0.20210317/KENROD_${study_uc}_${date}_${sub}_${wave}"
+in_dir="${root_dir}/study-pams/sourcedata/nii_software-dcm2niix_v-1.0.20210317/KENROD_${study_uc}_${date}_${sub}_${wave}"
 in_paths=(`ls ${in_dir}/*.nii.gz`)
-out_dir="${root_dir}/study-${study}/sourcedata/qc/KENROD_${study_uc}_${date}_${sub}_${wave}/descriptive_stats"
-out_path="${root_dir}/study-${study}/sourcedata/qc/KENROD_${study_uc}_${date}_${sub}_${wave}/descriptive_stats.csv"
+out_dir="${root_dir}/study-pams/sourcedata/qc/KENROD_${study_uc}_${date}_${sub}_${wave}/descriptive_stats"
+out_path="${root_dir}/study-pams/sourcedata/qc/KENROD_${study_uc}_${date}_${sub}_${wave}/descriptive_stats.csv"
 
 # ------------------------------------------------------------------------------
 # check paths
