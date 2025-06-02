@@ -37,14 +37,14 @@ if len(in_paths) == 0:
 # ------------------------------------------------------------------------------
 # main
 # ------------------------------------------------------------------------------
-def json_to_csv(in_path, out_path):
+def json_to_csv(in_path, out_path, overwrite):
     """
     Read json file as pandas dataframe
     """
     if not os.path.exists(in_path):
         raise Exception("file does not exist (in_path: %s)" % in_path)
 
-    if os.path.exists(out_path) and args.overwrite == 0:
+    if os.path.exists(out_path) and overwrite == 0:
         raise Exception(
             "file already exists and overwrite set to 0 (out_path: %s)" % out_path
         )
@@ -80,7 +80,7 @@ for in_path in in_paths:
     out_path = os.path.join(out_dir, out_file)
     try:
         print("in_path: %s" % in_path)
-        json_to_csv(in_path, out_path)
+        json_to_csv(in_path, out_path, args.overwrite)
     except Exception as e:
         print(e)
 
