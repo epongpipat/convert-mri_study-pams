@@ -11,7 +11,7 @@ source bashHelperKennedyRodrigueFunctions.sh
 # args/hdr
 # ------------------------------------------------------------------------------
 parse_args "$@"
-req_arg_list=(study sub ses date)
+req_arg_list=(sub ses date)
 check_req_args ${req_arg_list[@]}
 print_header
 set -e
