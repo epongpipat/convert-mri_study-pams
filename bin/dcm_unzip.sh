@@ -11,7 +11,7 @@ source bashHelperKennedyRodrigueFunctions.sh
 # args/hdr
 # ------------------------------------------------------------------------------
 parse_args "$@"
-req_arg_list=(sub ses date data_ref)
+req_arg_list=(study sub ses date data_ref)
 check_req_args ${req_arg_list[@]}
 print_header
 
@@ -21,8 +21,6 @@ print_header
 lab="kenrod"
 lab_uc="KENROD"
 lab_uc_abbr="KRO"
-study="pams"
-study_uc="PAMS"
 scanner_center="bhic"
 data_ref_1=`echo ${data_ref} | cut -d'-' -f1`
 
@@ -37,7 +35,7 @@ in_paths[zip]="${root_dir}/incoming/${scanner_center}/${lab_uc}-${lab_uc}.${stud
 declare -A out_paths
 out_paths[dcm_dir]="${root_dir}/study-${study}/sourcedata/dcm"
 out_paths[sub_dcm_dir_temp1]="${root_dir}/study-${study}/sourcedata/dcm/${lab_uc}_${study_uc}_${sub}_${wave}-${data_ref_1}"
-out_paths[sub_dcm_dir_temp2]="${root_dir}/study-${study}/sourcedata/dcm/${lab_uc_abbr}_${study_uc}_${sub}_${wave}-${data_ref_1}"
+# out_paths[sub_dcm_dir_temp2]="${root_dir}/study-${study}/sourcedata/dcm/${lab_uc_abbr}_${study_uc}_${sub}_${wave}-${data_ref_1}"
 out_paths[sub_dcm_dir]="${root_dir}/study-${study}/sourcedata/dcm/${lab_uc}_${study_uc}_${date}_${sub}_${wave}"
 
 # ------------------------------------------------------------------------------
@@ -54,10 +52,10 @@ else
     cmd="unzip \
     ${in_paths[zip]} \
     -d ${out_paths[dcm_dir]}"
-    eval_cmd -c "${cmd}" -o ${out_paths[sub_dcm_dir_temp2]} --overwrite ${overwrite} --print ${print}
+    eval_cmd -c "${cmd}" -o ${out_paths[sub_dcm_dir_temp1]} --overwrite ${overwrite} --print ${print}
 fi
 
-cmd="mv ${out_paths[sub_dcm_dir_temp2]} ${out_paths[sub_dcm_dir]}"
+cmd="mv ${out_paths[sub_dcm_dir_temp1]} ${out_paths[sub_dcm_dir]}"
 eval_cmd -c "${cmd}" -o ${out_paths[sub_dcm_dir]} --overwrite ${overwrite} --print ${print}
 
 # ------------------------------------------------------------------------------

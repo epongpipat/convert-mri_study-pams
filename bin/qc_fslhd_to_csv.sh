@@ -13,7 +13,7 @@ module load containers/r/4.2.1
 # args/hdr
 # ------------------------------------------------------------------------------
 parse_args "$@"
-req_arg_list=(sub ses date)
+req_arg_list=(study sub ses date)
 check_req_args ${req_arg_list[@]}
 print_header
 set -e 
@@ -26,13 +26,13 @@ root_dir=`get_root_dir kenrod`
 dcm2niix_ver="1.0.20210317"
 
 declare -A in_paths
-in_paths[nii_dir]="${root_dir}/study-pams/sourcedata/nii_software-dcm2niix_v-${dcm2niix_ver}/KENROD_PAMS_${date}_${sub}_${wave}"
+in_paths[nii_dir]="${root_dir}/study-${study}/sourcedata/nii_software-dcm2niix_v-${dcm2niix_ver}/KENROD_PAMS_${date}_${sub}_${wave}"
 in_paths[code_dir]=`dirname $0`
 
 declare -A out_paths
-out_paths[tsv_dir]="${root_dir}/study-pams/sourcedata/qc/KENROD_PAMS_${date}_${sub}_${wave}/fslhd_tsv"
-out_paths[csv_dir]="${root_dir}/study-pams/sourcedata/qc/KENROD_PAMS_${date}_${sub}_${wave}/fslhd_csv"
-out_paths[csv_combined]="${root_dir}/study-pams/sourcedata/qc/KENROD_PAMS_${date}_${sub}_${wave}/fslhd.csv"
+out_paths[tsv_dir]="${root_dir}/study-${study}/sourcedata/qc/KENROD_${study_uc}_${date}_${sub}_${wave}/fslhd_tsv"
+out_paths[csv_dir]="${root_dir}/study-${study}/sourcedata/qc/KENROD_${study_uc}_${date}_${sub}_${wave}/fslhd_csv"
+out_paths[csv_combined]="${root_dir}/study-${study}/sourcedata/qc/KENROD_${study_uc}_${date}_${sub}_${wave}/fslhd.csv"
 
 # ------------------------------------------------------------------------------
 # check paths
@@ -57,11 +57,11 @@ for in_path in ${out_paths[tsv_dir]}/*.tsv; do
     fi
     out_file=`basename ${in_path} | sed s/.tsv/.csv/g`
     out_csv="${out_paths[csv_dir]}/${out_file}"
-    cmd="r-exec Rscript ${in_paths[code_dir]}/qc_fslhd_to_csv.R -i ${in_path} -o ${out_csv} --overwrite ${overwrite}"
+    cmd="r-exec Rscript --vanilla ${in_paths[code_dir]}/qc_fslhd_to_csv.R -i ${in_path} -o ${out_csv} --overwrite ${overwrite}"
     eval_cmd -c "${cmd}" -o "${out_csv}" --overwrite ${overwrite}
 done
 
-cmd="r-exec Rscript ${in_paths[code_dir]}/qc_fslhd_combine_within_sub.R \
+cmd="r-exec Rscript --vanilla ${in_paths[code_dir]}/qc_fslhd_combine_within_sub.R \
 -i ${out_paths[csv_dir]} \
 -o ${out_paths[csv_combined]} \
 --overwrite ${overwrite}"

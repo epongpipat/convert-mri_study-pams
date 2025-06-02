@@ -12,7 +12,7 @@ module load dcm2niix/${dcm2niix_ver}
 # args/hdr
 # ------------------------------------------------------------------------------
 parse_args "$@"
-req_arg_list=(sub ses date)
+req_arg_list=(study sub ses date)
 check_req_args ${req_arg_list[@]}
 
 print_header
@@ -21,10 +21,7 @@ print_header
 # options
 # ------------------------------------------------------------------------------
 lab="kenrod"
-study="pams"
-
 lab_uc="KENROD"
-study_uc="PAMS"
 
 # ------------------------------------------------------------------------------
 # paths
