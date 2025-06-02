@@ -5,10 +5,10 @@ collection of scripts to:
 - create a qc html file (from dcm2niix's bids json file and fslhd using qmd)
 
 ## 1. dependencies
-- bash:
-    - epongpipat/bashHelperKennedyRodrigue
-- R:
-    - epongpipat/rHelperKennedyRodrigue
+```
+module load bashHelperKennedyRodrigue
+module load containers/r/4.2.1-quarto
+```
 
 ## 2. usage
 
