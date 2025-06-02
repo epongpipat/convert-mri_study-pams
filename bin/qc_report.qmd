@@ -9,6 +9,7 @@ format:
     code-line-numbers: true
     toc-location: left
     embed-resources: true
+    self-contained: true
 execute:
   warning: false
   echo: false
@@ -261,33 +262,32 @@ df <- data.frame(path = in_paths) %>%
   ungroup()
 ```
 
-
 # anat
 
 ## T1w
 
-```{r}
+```{r anat_T1w}
 path_temp <- df %>% filter(type == 'anat', suffix == 'T1w') %>% select('path') %>% .[[1]]
 get_gt(path_temp) 
 ```
 
 ## T2w (Whole Brain)
 
-```{r}
+```{r anat_T2w}
 path_temp <- df %>% filter(type == 'anat', suffix == 'T2w', acq == 'wb') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 ## T2w (FLAIR)
 
-```{r}
+```{r anat_FLAIR}
 path_temp <- df %>% filter(type == 'anat', suffix == 'FLAIR') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 ## T2w (HCSF)
 
-```{r}
+```{r anat_T2w_HCSF}
 path_temp <- df %>% filter(type == 'anat', suffix == 'T2w', acq == 'hcsf') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
@@ -298,14 +298,14 @@ get_gt(path_temp)
 
 #### Anatomical Image
 
-```{r}
+```{r anat_TB1map}
 path_temp <- df %>% filter(type == 'anat', suffix == 'TB1map', is.na(acq), part == 'anat') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 #### Flip Angle Map
 
-```{r}
+```{r anat_TB1map_FAmap}
 path_temp <- df %>% filter(type == 'anat', suffix == 'TB1map', is.na(acq), part == 'fam') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
@@ -314,67 +314,66 @@ get_gt(path_temp)
 
 #### Anatomical Image
 
-```{r}
+```{r anat_TB1map_up-2mm}
 path_temp <- df %>% filter(type == 'anat', suffix == 'TB1map', acq == 'up-2mm', part == 'anat') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 #### Flip Angle Map
 
-```{r}
+```{r anat_TB1map_up-2mm_FAmap}
 path_temp <- df %>% filter(type == 'anat', suffix == 'TB1map', acq == 'up-2mm', part == 'fam') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 # fMRI (Circles Task)
 
-```{r}
+```{r bold_task-circles}
 path_temp <- df %>% filter(type == 'func', suffix == 'bold') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 ### fmap (dir-ap)
 
-```{r}
+```{r bold_task-circles_fmap_dir-ap}
 path_temp <- df %>% filter(type == 'fmap', suffix == 'epi', acq == 'circles', dir == 'ap') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 ### fmap (dir-pa)
 
-```{r}
+```{r bold_task-circles_fmap_dir-pa}
 path_temp <- df %>% filter(type == 'fmap', suffix == 'epi', acq == 'circles', dir == 'pa') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 # dwi (NODDI)
 
-```{r}
+```{r dwi}
 path_temp <- df %>% filter(type == 'dwi', suffix == 'dwi') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 # perf (Multi-Label ASL)
 
-```{r}
+```{r perf}
 path_temp <- df %>% filter(type == 'perf', suffix == 'asl') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 ### fmap (dir-ap)
 
-```{r}
+```{r perf_fmap_dir-ap}
 path_temp <- df %>% filter(type == 'fmap', suffix == 'epi', acq == 'perf-asl', dir == 'ap') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 ### fmap (dir-ap)
 
-```{r}
+```{r perf_fmap_dir-pa}
 path_temp <- df %>% filter(type == 'fmap', suffix == 'epi', acq == 'perf-asl', dir == 'pa') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
-
 
 # SWI
 
@@ -382,7 +381,7 @@ get_gt(path_temp)
 
 ### mag-1
 
-```{r}
+```{r swi_mag-1}
 path_temp <- df %>% 
   filter(type == 'swi', suffix == 'gre', part == 'mag', echo == '1') %>%
   select('path') %>% 
@@ -392,52 +391,49 @@ get_gt(path_temp)
 
 ### mag-2
 
-```{r}
+```{r swi_mag-2}
 path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'mag', echo == '2') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 ### mag-3
 
-```{r}
+```{r swi_mag-3}
 path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'mag', echo == '3') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 ### mag-4
 
-```{r}
+```{r swi_mag-4}
 path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'mag', echo == '4') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 ### mag-5
 
-```{r}
+```{r swi_mag-5}
 path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'mag', echo == '5') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 ### mag-6
 
-```{r}
+```{r swi_mag-6}
 path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'mag', echo == '6') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
-
-
 ### mag-7
 
-```{r}
+```{r swi_mag-7}
 path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'mag', echo == '7') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
-
 ### mag-8
 
-```{r}
+```{r swi_mag-8}
 path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'mag', echo == '8') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
@@ -446,59 +442,56 @@ get_gt(path_temp)
 
 ### phase-1
 
-```{r}
+```{r swi_phase-1}
 path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'phase', echo == '1') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 ### phase-2
 
-```{r}
+```{r swi_phase-2}
 path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'phase', echo == '2') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 ### phase-3
 
-```{r}
+```{r swi_phase-3}
 path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'phase', echo == '3') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 ### phase-4
 
-```{r}
+```{r} swi_phase-4}
 path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'phase', echo == '4') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 ### phase-5
 
-```{r}
+```{r swi_phase-5}
 path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'phase', echo == '5') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
 ### phase-6
 
-```{r}
+```{r swi_phase-6}
 path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'phase', echo == '6') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
-
-
 ### phase-7
 
-```{r}
+```{r swi_phase-7}
 path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'phase', echo == '7') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
 
-
 ### phase-8
 
-```{r}
+```{r swi_phase-8}
 path_temp <- df %>% filter(type == 'swi', suffix == 'gre', part == 'phase', echo == '8') %>% select('path') %>% .[[1]]
 get_gt(path_temp)
 ```
